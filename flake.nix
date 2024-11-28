@@ -18,18 +18,9 @@
     flake-utils.lib.eachDefaultSystem (
       system:
       let
-        overlays = [
-          (_: prev: {
-            just = prev.just.overrideAttrs (_old: {
-              version = "1.23.0";
-            });
-          })
-        ];
-        pkgs = import nixpkgs { inherit system overlays; };
+        pkgs = import nixpkgs { inherit system; };
 
-        python-with-packages = pkgs.python311.withPackages (pypkg: [
-          pypkg.pip
-        ]);
+        python-with-packages = pkgs.python312.withPackages (pypkg: [ pypkg.pip ]);
       in
       {
         checks = {
@@ -45,11 +36,16 @@
 
         formatter = pkgs.nixfmt-rfc-style;
         devShells.default = pkgs.mkShell {
+          shellHook = ''
+            echo "You are now using a NIX environment"
+            export CUDA_PATH=${pkgs.cudatoolkit}
+          '';
 
           buildInputs =
             (with pkgs; [
               nixfmt-rfc-style
               poetry
+              cudaPackages_12.cudatoolkit
             ])
             ++ [ python-with-packages ];
         };

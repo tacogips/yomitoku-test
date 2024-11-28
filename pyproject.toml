@@ -6,7 +6,8 @@ authors = ["tacogips <me@tacogips.me>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.12"
+yomitoku = "^0.5.1"
 
 
 [build-system]
