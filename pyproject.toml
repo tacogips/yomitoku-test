@@ -1,15 +1,24 @@
 [tool.poetry]
-name = "yomitoku-test"
+name = "yomitoku_test"
 version = "0.1.0"
 description = ""
 authors = ["tacogips <me@tacogips.me>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11"
 yomitoku = "^0.5.1"
+numpy = "^2.1.3"
 
 
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.pyright]
+venvPath = "."
+venv = ".venv"
+
+[tool.poetry.scripts]
+do_ocr = "yomitoku_test.main:do_ocr"
+parse_img = "yomitoku_test.main:parse_img"

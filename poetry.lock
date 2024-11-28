@@ -1625,4 +1625,4 @@ torchvision = ">=0.20.0"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "1bbb6a34f3d2b78e880e8816097262681499dcb5064ed51694c8da4738ef25d9"
+content-hash = "851fbfca52176313d21f99ccf403c4c6e9f903de1befafb8cd81a90e7c9f6427"
