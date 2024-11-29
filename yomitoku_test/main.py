@@ -38,11 +38,6 @@ def parse_img():
     else:
         print("-- cuda is NOT available --")
 
-    ocr = OCR(
-        configs={"text_detector": {}, "text_recognizer": {}},
-        visualize=True,
-        device="cuda",
-    )
     img = load_image("pdf_files/image_magick_japanese_corp_tax.pdf.jpg")
     analyzer = DocumentAnalyzer(configs={}, visualize=True, device="cuda")
     results, ocr_vis, layout_vis = analyzer(img)
