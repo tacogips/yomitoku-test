@@ -3,10 +3,14 @@
   description = "yomitoku_test";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/release-24.05";
+    nixpkgs.url = "github:tacogips/nixpkgs-security/4a5495d1c0a7c62200b55deeeecb64f03b093056";
     flake-utils.url = "github:numtide/flake-utils";
     pre-commit-hooks.url = "github:cachix/git-hooks.nix";
   };
+
+  # Share the patched Node.js and CA bundle across transitive development inputs.
+  inputs.pre-commit-hooks.inputs.nixpkgs.follows = "nixpkgs";
+  inputs.pre-commit-hooks.inputs.nixpkgs-stable.follows = "nixpkgs";
 
   outputs =
     {
@@ -21,6 +25,11 @@
         overlays = [ (final: prev: { cudaPackages = final.cudaPackages_12; }) ];
 
         pkgs = import nixpkgs { inherit system overlays; };
+
+        linuxLibraries = pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+          pkgs.cudatoolkit
+          pkgs.libGL
+        ];
 
         python-with-packages = pkgs.python312.withPackages (pypkg: [
           pypkg.pip
@@ -52,13 +61,12 @@
 
               stdenv.cc.cc.lib
               zlib
-              libGL
-              cudatoolkit
               imagemagick
               glib
               pyright
               #              pkgs.linuxPackages.nvidia_x11
             ])
+            ++ linuxLibraries
             ++ [ python-with-packages ];
 
           # TODO cuda is not available on linux not yet.
@@ -66,20 +74,18 @@
           # https://www.falconprogrammer.co.uk/blog/2024/03/nix-cuda-shellhook/
           shellHook = ''
                   echo "You are now using a NIX environment"
-                  export CUDA_PATH=${pkgs.cudatoolkit}
+                  ${pkgs.lib.optionalString pkgs.stdenv.hostPlatform.isLinux ''export CUDA_PATH=${pkgs.cudatoolkit}''}
                   export LD_LIBRARY_PATH="${
-                    pkgs.lib.makeLibraryPath [
-                      pkgs.cudatoolkit
+                    pkgs.lib.makeLibraryPath ([
+
                       pkgs.glib
                       pkgs.stdenv.cc.cc
                       pkgs.zlib
-                      pkgs.libGL
                       # pkgs.linuxPackages.nvidia_x11
-                    ]
+                    ] ++ linuxLibraries)
                   }:$LD_LIBRARY_PATH"
                   export PATH="${python-with-packages}/bin:$PATH"
                   export PYTHONPATH="${python-with-packages}/${python-with-packages.sitePackages}:$PYTHONPATH"
-            		# export EXTRA_LDFLAGS="-L/lib -L${pkgs.linuxPackages.nvidia_x11}/lib"
               	export EXTRA_CCFLAGS="-I/usr/include"
 
           '';
